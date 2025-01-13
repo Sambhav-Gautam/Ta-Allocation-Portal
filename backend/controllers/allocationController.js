@@ -34,8 +34,7 @@ const sendDeallocationDetails = asyncHandler(
           <body>
             <h1>Student Deallocation Data</h1>
             <p>Hello,</p>
-            
-            <p>This is only for testing purpose of the new allocation system(PLEASE IGNORE THE MAIL) </p>
+
             <ul>
               <li><strong>Email:</strong> ${ email }</li>
               <li><strong>Deallocated by:</strong> ${ deallocatedBy }</li>
@@ -73,7 +72,6 @@ const sendAllocationDetails = asyncHandler(
             <h1>Student Allocation Data</h1>
             <p>Hello,</p>
             
-            <p>This is only for testing purpose of the new allocation system(PLEASE IGNORE THE MAIL) </p>
             <ul>
               <li><strong>Email:</strong> ${ email }</li>
               <li><strong>Allocated By:</strong> ${ AllocatedBy }</li>
@@ -154,7 +152,7 @@ const allocate = asyncHandler( async ( req, res ) =>
     let student = await Student.findById( studentId ).session( session );
     let course = await Course.findById( courseId ).session( session );
 
-    const adminEmail = "sambhav22436@iiitd.ac.in";
+    const adminEmail = "shubham21290@iiitd.ac.in";
     const professor = await Professor.findById( course.professor );
     const department = await JM.findById( course.department );
 
@@ -469,7 +467,7 @@ const getAllAllcation = asyncHandler(async (req, res) => {
     const studentIds = courses.reduce((ids, course) => {
       return ids.concat(course.taAllocated);
     }, []);
-
+    console.log(studentIds);
     // Fetch all the student details in a single query using $in operator
     const studentDetails = await Student.find({ _id: { $in: studentIds } });
 
@@ -478,6 +476,7 @@ const getAllAllcation = asyncHandler(async (req, res) => {
     studentDetails.forEach(student => {
       studentMap[student._id] = student;
     });
+    // console.log(studentMap);
 
     const allocation = [];
 
@@ -485,7 +484,12 @@ const getAllAllcation = asyncHandler(async (req, res) => {
     for (const course of courses) {
       for (const studentId of course.taAllocated) {
         const student = studentMap[studentId];
-
+        // try
+        // {console.log(student.name);}
+        // catch(error)
+        // {
+        //   console.error(error);
+        // }
         if (student) {
           const allocatedStudent = {
             'Roll No.': student.rollNo,

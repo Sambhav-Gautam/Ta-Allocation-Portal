@@ -97,7 +97,7 @@ const AdminManagement = () => {
     return (
         <div>
             <h2 className="text-xl font-bold">Admin Management</h2>
-            <button onClick={addAdmin} className="bg-green-500 text-white px-4 py-2 rounded mt-2">
+            <button onClick={addAdmin} className="bg-[#3dafaa] text-white px-4 py-2 rounded mt-2">
                 Add Admin
             </button>
             <ul className="mt-4">

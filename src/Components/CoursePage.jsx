@@ -300,7 +300,7 @@ const CoursePage = () => {
       : availableStudents.map(
           ({ _id, allocationStatus, __v, ...rest }) => rest
         ); // Exclude _id and allocationStatus from availableStudents
-
+    console.log(dataToDownload);
     const ws = XLSX.utils.json_to_sheet(dataToDownload);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Students");

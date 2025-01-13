@@ -343,6 +343,7 @@ const Department = () => {
   const filteredCourseByAllocationStatus = (departmentCourses) => {
     const courseList = [];
     if (allocationStatus === "All") {
+      console.log(departmentCourses);
       return departmentCourses;
     } else if (allocationStatus === "Over Allocation") {
       for (const course of departmentCourses) {

@@ -1,7 +1,20 @@
 const asyncHandler = require('express-async-handler');
 const Admin = require('../models/Admin');
 const argon2 = require('argon2');
+const syncData = require('../utils/syncData');
+const express = require('express');
+const router = express.Router();
 
+router.post('/syncDatabase', async (req, res) => {
+    try {
+        console.log("Synchronizing database...");
+        await syncData();
+        res.status(200).json({ message: "Database synchronization completed successfully." });
+    } catch (error) {
+        console.error("Error during synchronization:", error);
+        res.status(500).json({ message: "Database synchronization failed.", error: error.message });
+    }
+});
 // Get Admin by ID
 const getAdmin = asyncHandler(async (req, res) => {
     const adminId = req.params.id;
@@ -81,4 +94,5 @@ const deleteAdmin = asyncHandler(async (req, res) => {
     return res.status(200).json({ message: 'Admin deleted successfully' });
 });
 
-module.exports = { getAdmin, getAdmins, addAdmin, updateAdmin, deleteAdmin };
+// router.post('/api/admin/syncDatabase', syncDatabase);
+module.exports = { getAdmin, getAdmins, addAdmin, updateAdmin, deleteAdmin, router };

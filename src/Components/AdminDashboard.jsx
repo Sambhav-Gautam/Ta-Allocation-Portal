@@ -191,7 +191,15 @@ const Dashboard = () => {
         console.error("Error fetching feedback form status:", error);
       });
   };
-
+  const handleSynchronize = async () => {
+    try {
+        console.log("Triggering database synchronization...");
+        const response = await axios.post(`${API}/api/admin/syncDatabase`);
+        alert("Synchronization completed: " + response.data.message);
+    } catch (error) {
+        alert("Synchronization failed: " + (error.response?.data?.message || error.message));
+    }
+};
   const closeFeedbackForm = () => {
     axios
       .post(`${API}/api/feedback/end`)
@@ -221,7 +229,7 @@ const Dashboard = () => {
         ) : (
           <button
             onClick={openForm}
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="bg-[#3dafaa] hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Open TA Form
           </button>
@@ -246,7 +254,7 @@ const Dashboard = () => {
           onClick={toggleRound}
           className={
             currentRound === null
-              ? "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 mr-4 rounded focus:outline-none focus:shadow-outline w-32"
+              ? "bg-[#3dafaa] hover:bg-green-600 text-white font-bold py-2 px-4 mr-4 rounded focus:outline-none focus:shadow-outline w-32"
               : "w-32 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mr-4 rounded focus:outline-none focus:shadow-outline"
           }
         >
@@ -279,9 +287,16 @@ const Dashboard = () => {
             Start Feedback Form
           </button>
         )}
+        <div>
+            <button onClick={handleSynchronize}
+            className="bg-[#3dafaa] hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-4"
+            >Synchronize Database</button>
+        </div>
       </div>
 
-      {/* Include your DashboardCardList component here */}
+      {/* Include your DashboardCardList component here */
+      }
+      
         
       <DashboardCardList />
     </div>
