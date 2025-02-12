@@ -8,6 +8,7 @@ const SideBar = () => {
     localStorage.removeItem("token");
     window.location.replace(API);
   };
+
   return (
     <div className="bg-[#3dafaa] h-screen text-center max-w-[95%] mt-4">
       <div className="flex flex-col">
@@ -32,6 +33,14 @@ const SideBar = () => {
           Courses
         </Link>
         <hr className="border-t-2" />
+        {/* Add the new link for Course Upload */}
+        <Link
+          to="/admin/course-upload"
+          className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
+        >
+          Upload Courses
+        </Link>
+        <hr className="border-t-2" />
         <Link
           to="/admin/department"
           className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
@@ -45,10 +54,6 @@ const SideBar = () => {
         >
           Faculty
         </Link>
-        {/* <hr className='border-t-2' />
-        <Link to="/admin/jms" className='bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>
-          Departments
-        </Link> */}
         <hr className="border-t-2" />
         <Link
           to="/admin/logs"
@@ -62,6 +67,13 @@ const SideBar = () => {
           className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
         >
           Feedback
+        </Link>
+        <hr className="border-t-2" />
+        <Link
+          to="/admin/archived-feedback"
+          className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
+        >
+          Archived Feedback
         </Link>
         <hr className="border-t-2" />
         <button

@@ -311,7 +311,55 @@ const CoursePage = () => {
       }_Students.xlsx`
     );
   };
+  const downloadAvailableStudents = () => {
+    // Filter students based on the same conditions as renderAvailableRow
+    const availableStudents = filteredStudents.filter((student) => {
+        let pref = "Not Any";
+        let grade = "No Grade";
+        const coursePreference = findCourseInPreferences(student, selectedCourse.name);
+        if (coursePreference !== null) {
+            pref = coursePreference.preferenceType;
+            grade = coursePreference.grade;
+        }
 
+        // Only include students who meet the conditions to be rendered
+        return (
+            (pref !== "Not Any" || student.department === selectedCourse.department || currentRound !== 2) &&
+            student.allocationStatus === 0
+        );
+    });
+
+    // Prepare student data
+    const studentData = availableStudents.map((student) => {
+        let pref = "Not Any";
+        let grade = "No Grade";
+        const coursePreference = findCourseInPreferences(student, selectedCourse.name);
+        if (coursePreference !== null) {
+            pref = coursePreference.preferenceType;
+            grade = coursePreference.grade;
+        }
+
+        return {
+            Name: student.name,
+            Email: student.emailId,
+            Program: student.program,
+            Department: student.department,
+            CGPA: student.cgpa || "N/A",
+            Grade: grade,
+            Preference: pref,
+        };
+    });
+
+    // Convert data to worksheet
+    const worksheet = XLSX.utils.json_to_sheet(studentData);
+
+    // Create a new workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Available Students");
+
+    // Generate and trigger download
+    XLSX.writeFile(workbook, "available_students.xlsx");
+};
 
 
 
@@ -826,6 +874,14 @@ const CoursePage = () => {
             <option value="SSH">SSH</option>
           </select>
         </div>
+        {title === "Available Students" && (
+        <button
+          onClick={downloadAvailableStudents}
+          className="bg-blue-500 text-white px-4 py-2 rounded font-bold"
+        >
+          Download Excel
+        </button>
+      )}
       </div>
     );
   };
@@ -1055,7 +1111,7 @@ const CoursePage = () => {
             currentRound,
             handlePrefFilter
           )}
-
+          
           <div className="overflow-auto" style={{height : '100vh'}}>
             <table className="w-full border-collapse border ">
               <thead className="sticky top-0">

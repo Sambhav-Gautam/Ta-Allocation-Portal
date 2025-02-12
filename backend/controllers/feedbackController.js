@@ -37,15 +37,15 @@ const startFeedback = asyncHandler(async (req, res) => {
                             course: course._id,
                             student: ta._id,
                             professor: professor._id,
-                            overallGrade: 'S',
-                            regularityInMeeting: 'Excellent',
-                            attendanceInLectures: 'Excellent',
-                            preparednessForTutorials: 'Excellent',
-                            timelinessOfTasks: 'Excellent',
-                            qualityOfWork: 'Excellent',
-                            attitudeCommitment: 'Excellent',
-                            nominatedForBestTA: false,
-                            comments: '',
+                            overallGrade: null, // No default value
+                            regularityInMeeting: null, // No default value
+                            attendanceInLectures: null, // No default value
+                            preparednessForTutorials: null, // No default value
+                            timelinessOfTasks: null, // No default value
+                            qualityOfWork: null, // No default value
+                            attitudeCommitment: null, // No default value
+                            nominatedForBestTA: null, // No default value
+                            comments: null, // No default value
                         });
 
                         await feedback.save();
@@ -89,15 +89,16 @@ const editFeedbackById = asyncHandler(async (req, res) => {
             return res.status(404).json({ message: "Feedback not found" });
         }
 
-        feedback.overallGrade = overallGrade || feedback.overallGrade;
-        feedback.regularityInMeeting = regularityInMeeting || feedback.regularityInMeeting;
-        feedback.attendanceInLectures = attendanceInLectures || feedback.attendanceInLectures;
-        feedback.preparednessForTutorials = preparednessForTutorials || feedback.preparednessForTutorials;
-        feedback.timelinessOfTasks = timelinessOfTasks || feedback.timelinessOfTasks;
-        feedback.qualityOfWork = qualityOfWork || feedback.qualityOfWork;
-        feedback.attitudeCommitment = attitudeCommitment || feedback.attitudeCommitment;
-        feedback.nominatedForBestTA = nominatedForBestTA !== undefined ? nominatedForBestTA : feedback.nominatedForBestTA;
-        feedback.comments = comments || feedback.comments;
+        // Ensure the professor fills all values
+        feedback.overallGrade = overallGrade;
+        feedback.regularityInMeeting = regularityInMeeting;
+        feedback.attendanceInLectures = attendanceInLectures;
+        feedback.preparednessForTutorials = preparednessForTutorials;
+        feedback.timelinessOfTasks = timelinessOfTasks;
+        feedback.qualityOfWork = qualityOfWork;
+        feedback.attitudeCommitment = attitudeCommitment;
+        feedback.nominatedForBestTA = nominatedForBestTA;
+        feedback.comments = comments;
 
         await feedback.save();
 
@@ -141,15 +142,15 @@ const getFeedbacksByProfessorId = asyncHandler(async (req, res) => {
                         professor: { name: course.professor.map((prof) => prof.name).join(', ') },
                         course: { name: course.name },
                         student: { rollNo: ta.rollNo, name: ta.name },
-                        overallGrade: "S",
-                        regularityInMeeting: "Excellent",
-                        attendanceInLectures: "Excellent",
-                        preparednessForTutorials: "Excellent",
-                        timelinessOfTasks: "Excellent",
-                        qualityOfWork: "Excellent",
-                        attitudeCommitment: "Excellent",
-                        nominatedForBestTA: false,
-                        comments: "",
+                        overallGrade: null, // No default value
+                        regularityInMeeting: null, // No default value
+                        attendanceInLectures: null, // No default value
+                        preparednessForTutorials: null, // No default value
+                        timelinessOfTasks: null, // No default value
+                        qualityOfWork: null, // No default value
+                        attitudeCommitment: null, // No default value
+                        nominatedForBestTA: null, // No default value
+                        comments: null, // No default value
                     };
                 }
 
@@ -164,8 +165,6 @@ const getFeedbacksByProfessorId = asyncHandler(async (req, res) => {
     }
 });
 
-
-
 // @desc Download all submitted feedbacks as XLSX
 // @route GET /api/feedback/download
 // @access Admin only
@@ -175,24 +174,6 @@ const downloadFeedbacks = asyncHandler(async (req, res) => {
             .populate('course', 'name code')
             .populate('student', 'name rollNo')
             .populate('professor', 'name emailId');
-        // Downloding only edited feedbacks
-        // const meaningfulFeedbacks = feedbacks.filter((feedback) => {
-        //     return (
-        //         feedback.overallGrade !== 'S' ||
-        //         feedback.regularityInMeeting !== 'Excellent' ||
-        //         feedback.attendanceInLectures !== 'Excellent' ||
-        //         feedback.preparednessForTutorials !== 'Excellent' ||
-        //         feedback.timelinessOfTasks !== 'Excellent' ||
-        //         feedback.qualityOfWork !== 'Excellent' ||
-        //         feedback.attitudeCommitment !== 'Excellent' ||
-        //         feedback.nominatedForBestTA !== false ||
-        //         (feedback.comments && feedback.comments.trim() !== '')
-        //     );
-        // });
-
-        // if (meaningfulFeedbacks.length === 0) {
-        //     return res.status(404).json({ message: "No submitted feedbacks available for download." });
-        // }
 
         const formattedData = feedbacks.map((feedback) => ({
             "Professor Name": feedback.professor?.name || "N/A",

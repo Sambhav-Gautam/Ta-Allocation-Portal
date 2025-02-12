@@ -11,6 +11,7 @@ import AdminLog from '../Components/AdminLog';
 import AdminProfessor from '../Components/AdminProfessor';
 import AdminJms from '../Components/AdminJms';
 import FeedbackList from '../Components/FeedbackList';
+import ArchivedFeedback from '../Components/ArchivedFeedback';
 
 const AdminPage = () => {
   return (
@@ -31,6 +32,7 @@ const AdminPage = () => {
             <Route element={<AdminProfessor/>} path="/professors" />
             <Route element={<AdminJms/>} path="/jms" />
             <Route element={<FeedbackList/>} path="/feedback" />
+            <Route element={<ArchivedFeedback />} path="/archived-feedback" />
           </Routes>
         </div>
       </div>

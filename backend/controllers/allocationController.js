@@ -235,7 +235,7 @@ const allocate = asyncHandler( async ( req, res ) =>
 
     // await Promise.all( [ studentUpdatePromise, courseUpdatePromise ] );
 
-    sendAllocationDetails( student.emailId, adminEmail, department.emailId, professor.emailId, allocatedBy );
+    // sendAllocationDetails( student.emailId, adminEmail, department.emailId, professor.emailId, allocatedBy );
 
     const flatstudid = studentUpdate.flatStudentByID
     const flatstud = studentUpdate.flatStudent
@@ -359,7 +359,7 @@ const deallocate = asyncHandler( async ( req, res ) =>
     {
       userEmailId = 'admin';
     }
-    sendDeallocationDetails( student.emailId, adminEmail, department.emailId, professor.emailId, deallocatedBy );
+    // sendDeallocationDetails( student.emailId, adminEmail, department.emailId, professor.emailId, deallocatedBy );
     const logEntry = new LogEntry( {
       student: flatstudid,
       userEmailId: userEmailId,

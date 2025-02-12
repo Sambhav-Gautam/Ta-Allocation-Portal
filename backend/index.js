@@ -40,6 +40,11 @@ app.use( "/api/feedback", require( "./routes/feedbackRoutes" ) );
 app.use( "/api/snd", require( "./routes/emailRoutes" ) );
 app.use( errorHandler );
 
+const archivedFeedbackRoutes = require('./routes/archivedFeedbackRoutes');
+console.log('Archived feedback route registered');
+app.use('/api', archivedFeedbackRoutes);
+
+
 app.get( '*', ( req, res ) =>
 {
     const indexPath = path.join( __dirname, './dist/index.html' );
