@@ -123,18 +123,17 @@ const FeedbackList = () => {
           <table className="table-auto border-collapse border ">
             <thead>
               <tr className="bg-gray-200 sticky top-0 w-full">
-                <th className="border p-2">Professor</th>
                 <th className="border p-2">Student Roll No.</th>
                 <th className="border p-2">Student Name</th>
                 <th className="border p-2">Course</th>
                 <th className="border p-2">Overall Grade</th>
-                <th className="border p-2">Regularity in Meeting</th>
-                <th className="border p-2">Attendance in Lectures</th>
-                <th className="border p-2">Preparedness for Tutorials</th>
-                <th className="border p-2">Timeliness of Tasks</th>
+                <th className="border p-2">Regularity</th>
+                <th className="border p-2">Attendance</th>
+                <th className="border p-2">Tutorial Prep</th>
+                <th className="border p-2">Timeliness</th>
                 <th className="border p-2">Quality of Work</th>
-                <th className="border p-2">Attitude/Commitment</th>
-                <th className="border p-2">Nominated for Best TA</th>
+                <th className="border p-2">Commitment</th>
+                <th className="border p-2">Best TA</th>
                 <th className="border px-20 w-60">Comments</th>
                 {user?.role === 'professor' && <th className="border p-2">Actions</th>}
               </tr>
@@ -147,7 +146,7 @@ const FeedbackList = () => {
               ) : (
                 feedbacks.map((feedback) => (
                   <tr key={feedback._id}>
-                    <td className="border p-2">{feedback.professor?.name}</td>
+                 
                     <td className="border p-2">{feedback.student?.rollNo}</td>
                     <td className="border p-2">{feedback.student?.name}</td>
                     <td className="border p-2">{feedback.course?.name}</td>

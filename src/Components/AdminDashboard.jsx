@@ -113,33 +113,42 @@ const Dashboard = () => {
 
   const startNewSemester = () => {
     try {
-      Swal.fire({
-        title: "Are you sure?",
-        text: "You won't be able to revert this!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          const res = await fetch(`${API}/api/new/semester`, {
-            method: "DELETE",
-          });
-          setCurrentRound(null); // Reset current round information
-          getRound();
-          if (res.status === 200) {
-            await Swal.fire("Success", "New Semester Started", "success");
-            window.location.reload();
-          } else {
-            Swal.fire("Oops!", "Server Error", "error");
-          }
-        }
-      });
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This will start a new semester and archive old data!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const currentSemester = "Winter-2026"; 
+
+                const res = await fetch(`${API}/api/new/semester`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ currentSemester }),
+                });
+
+                setCurrentRound(null); // Reset current round information
+                getRound();
+
+                if (res.status === 200) {
+                    await Swal.fire("Success", "New Semester Started", "success");
+                    window.location.reload();
+                } else {
+                    Swal.fire("Oops!", "Server Error", "error");
+                }
+            }
+        });
     } catch (e) {
-      console.error("Error starting new semester: ", e.message);
+        console.error("Error starting new semester: ", e.message);
     }
-  };
+};
+
 
   const openForm = async () => {
     const response = await fetch(`${API}/api/form/changeState`, {

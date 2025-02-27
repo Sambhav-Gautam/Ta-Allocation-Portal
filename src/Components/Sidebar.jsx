@@ -1,89 +1,46 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SideBar = () => {
+  const navigate = useNavigate();
   const API = import.meta.env.VITE_API_URL;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.replace(API);
+    navigate(API);
   };
+
+  const sidebarItems = [
+    { to: "/admin/", label: "Dashboard" },
+    { to: "/admin/student", label: "Students" },
+    { to: "/admin/course", label: "Courses" },
+    { to: "/admin/course-upload", label: "Upload Courses" },
+    { to: "/admin/department", label: "Allocate" },
+    { to: "/admin/professors", label: "Faculty" },
+    { to: "/admin/logs", label: "Logs" },
+    { to: "/admin/feedback", label: "Feedback" },
+    { to: "/admin/archived-feedback", label: "Archived Feedback" },
+  ];
+
+  const commonClasses =
+    "bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold";
 
   return (
     <div className="bg-[#3dafaa] h-screen text-center max-w-[95%] mt-4">
-      <div className="flex flex-col">
-        <Link
-          to="/admin/"
-          className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
-        >
-          Dashboard
-        </Link>
-        <hr className="border-t-2" />
-        <Link
-          to="/admin/student"
-          className="bg-[#3dafaa] h-16 p-2 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
-        >
-          Students
-        </Link>
-        <hr className="border-t-2" />
-        <Link
-          to="/admin/course"
-          className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
-        >
-          Courses
-        </Link>
-        <hr className="border-t-2" />
-        {/* Add the new link for Course Upload */}
-        <Link
-          to="/admin/course-upload"
-          className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
-        >
-          Upload Courses
-        </Link>
-        <hr className="border-t-2" />
-        <Link
-          to="/admin/department"
-          className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
-        >
-          Allocate
-        </Link>
-        <hr className="border-t-2" />
-        <Link
-          to="/admin/professors"
-          className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
-        >
-          Faculty
-        </Link>
-        <hr className="border-t-2" />
-        <Link
-          to="/admin/logs"
-          className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
-        >
-          Logs
-        </Link>
-        <hr className="border-t-2" />
-        <Link
-          to="/admin/feedback"
-          className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
-        >
-          Feedback
-        </Link>
-        <hr className="border-t-2" />
-        <Link
-          to="/admin/archived-feedback"
-          className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
-        >
-          Archived Feedback
-        </Link>
-        <hr className="border-t-2" />
-        <button
-          className="bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold"
-          onClick={handleLogout}
-        >
+      <nav className="flex flex-col" aria-label="Sidebar Navigation">
+        {sidebarItems.map((item, index) => (
+          <React.Fragment key={index}>
+            <Link to={item.to} className={commonClasses}>
+              {item.label}
+            </Link>
+            <hr className="border-t-2" />
+          </React.Fragment>
+        ))}
+        <button className={commonClasses} onClick={handleLogout}>
           Logout
         </button>
         <hr className="border-t-2" />
-      </div>
+      </nav>
     </div>
   );
 };

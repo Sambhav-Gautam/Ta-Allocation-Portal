@@ -37,15 +37,15 @@ const startFeedback = asyncHandler(async (req, res) => {
                             course: course._id,
                             student: ta._id,
                             professor: professor._id,
-                            overallGrade: null, // No default value
-                            regularityInMeeting: null, // No default value
-                            attendanceInLectures: null, // No default value
-                            preparednessForTutorials: null, // No default value
-                            timelinessOfTasks: null, // No default value
-                            qualityOfWork: null, // No default value
-                            attitudeCommitment: null, // No default value
-                            nominatedForBestTA: null, // No default value
-                            comments: null, // No default value
+                            overallGrade: 'S',
+                            regularityInMeeting: 'Excellent',
+                            attendanceInLectures: 'Excellent',
+                            preparednessForTutorials: 'Excellent',
+                            timelinessOfTasks: 'Excellent',
+                            qualityOfWork: 'Excellent',
+                            attitudeCommitment: 'Excellent',
+                            nominatedForBestTA: false,
+                            comments: '',
                         });
 
                         await feedback.save();
@@ -89,16 +89,15 @@ const editFeedbackById = asyncHandler(async (req, res) => {
             return res.status(404).json({ message: "Feedback not found" });
         }
 
-        // Ensure the professor fills all values
-        feedback.overallGrade = overallGrade;
-        feedback.regularityInMeeting = regularityInMeeting;
-        feedback.attendanceInLectures = attendanceInLectures;
-        feedback.preparednessForTutorials = preparednessForTutorials;
-        feedback.timelinessOfTasks = timelinessOfTasks;
-        feedback.qualityOfWork = qualityOfWork;
-        feedback.attitudeCommitment = attitudeCommitment;
-        feedback.nominatedForBestTA = nominatedForBestTA;
-        feedback.comments = comments;
+        feedback.overallGrade = overallGrade || feedback.overallGrade;
+        feedback.regularityInMeeting = regularityInMeeting || feedback.regularityInMeeting;
+        feedback.attendanceInLectures = attendanceInLectures || feedback.attendanceInLectures;
+        feedback.preparednessForTutorials = preparednessForTutorials || feedback.preparednessForTutorials;
+        feedback.timelinessOfTasks = timelinessOfTasks || feedback.timelinessOfTasks;
+        feedback.qualityOfWork = qualityOfWork || feedback.qualityOfWork;
+        feedback.attitudeCommitment = attitudeCommitment || feedback.attitudeCommitment;
+        feedback.nominatedForBestTA = nominatedForBestTA !== undefined ? nominatedForBestTA : feedback.nominatedForBestTA;
+        feedback.comments = comments || feedback.comments;
 
         await feedback.save();
 
@@ -142,15 +141,15 @@ const getFeedbacksByProfessorId = asyncHandler(async (req, res) => {
                         professor: { name: course.professor.map((prof) => prof.name).join(', ') },
                         course: { name: course.name },
                         student: { rollNo: ta.rollNo, name: ta.name },
-                        overallGrade: null, // No default value
-                        regularityInMeeting: null, // No default value
-                        attendanceInLectures: null, // No default value
-                        preparednessForTutorials: null, // No default value
-                        timelinessOfTasks: null, // No default value
-                        qualityOfWork: null, // No default value
-                        attitudeCommitment: null, // No default value
-                        nominatedForBestTA: null, // No default value
-                        comments: null, // No default value
+                        overallGrade: "S",
+                        regularityInMeeting: "Excellent",
+                        attendanceInLectures: "Excellent",
+                        preparednessForTutorials: "Excellent",
+                        timelinessOfTasks: "Excellent",
+                        qualityOfWork: "Excellent",
+                        attitudeCommitment: "Excellent",
+                        nominatedForBestTA: false,
+                        comments: "",
                     };
                 }
 
