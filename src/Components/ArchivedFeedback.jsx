@@ -3,131 +3,164 @@ import axios from "axios";
 
 const ArchivedFeedback = () => {
   const [archivedFeedback, setArchivedFeedback] = useState([]);
-  const [filteredFeedback, setFilteredFeedback] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [searchSemester, setSearchSemester] = useState("");
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [allSemesters, setAllSemesters] = useState([]); // new state for semesters
   const API = import.meta.env.VITE_API_URL;
   const tableContainerRef = useRef(null);
+  const limit = 20; // number of rows per request
 
+  // Fetch unique semesters on component mount
   useEffect(() => {
-    const fetchArchivedFeedback = async () => {
+    const fetchSemesters = async () => {
       try {
-        setLoading(true);
-        const res = await axios.get(`${API}/api/archived-feedback`);
-        setArchivedFeedback(res.data);
-        setFilteredFeedback(res.data);
-        setLoading(false);
+        const res = await axios.get(`${API}/api/archived-feedback/semesters`);
+        setAllSemesters(res.data.semesters);
       } catch (error) {
-        console.error("Error fetching archived feedback: ", error);
-        setLoading(false);
+        console.error("Error fetching semesters:", error);
       }
     };
+    fetchSemesters();
+  }, [API]);
 
-    fetchArchivedFeedback();
-  }, []);
-
-  useEffect(() => {
-    if (searchSemester) {
-      setFilteredFeedback(
-        archivedFeedback.filter((feedback) =>
-          feedback.semester.toLowerCase().includes(searchSemester.toLowerCase())
-        )
-      );
-    } else {
-      setFilteredFeedback(archivedFeedback);
-    }
-  }, [searchSemester, archivedFeedback]);
-
-  const downloadFeedback = async () => {
+  // Function to fetch archived feedback for a given page
+  const fetchArchivedFeedback = async (pageNumber) => {
     try {
-      const response = await axios.get(`${API}/api/feedback/download`, {
-        responseType: 'arraybuffer',
-      });
-  
-      const blob = new Blob([response.data], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      });
-  
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `ArchivedFeedback.xlsx`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-  
-      console.log("Archived feedback downloaded successfully");
+      setLoading(true);
+      const query = selectedSemester
+        ? `?semester=${selectedSemester}&page=${pageNumber}&limit=${limit}`
+        : `?page=${pageNumber}&limit=${limit}`;
+      const res = await axios.get(`${API}/api/archived-feedback${query}`);
+      const newFeedback = res.data.archivedFeedback || [];
+      setTotal(res.data.total || 0);
+      // Append newly fetched data
+      setArchivedFeedback((prev) => [...prev, ...newFeedback]);
+      setLoading(false);
     } catch (error) {
-      console.error("Error downloading archived feedback: ", error);
-      alert("Failed to download archived feedback. Please try again.");
+      console.error("Error fetching archived feedback:", error);
+      setLoading(false);
     }
   };
 
-  if (loading) return <p>Loading archived feedback...</p>;
+  // Fetch page 1 initially and whenever semester changes
+  useEffect(() => {
+    setPage(1);
+    setArchivedFeedback([]);
+    fetchArchivedFeedback(1);
+  }, [selectedSemester]);
+
+  // Handle scroll: if near bottom and not all feedback loaded, fetch next page
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollHeight - scrollTop <= clientHeight + 50 && archivedFeedback.length < total) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchArchivedFeedback(nextPage);
+    }
+  };
+
+  const downloadFeedback = async () => {
+    try {
+      // Include semester filter if selected
+      const query = selectedSemester ? `?semester=${selectedSemester}` : "";
+      const response = await axios.get(`${API}/api/archived-feedback/download${query}`, {
+        responseType: "arraybuffer", // Use arraybuffer for binary data
+      });
+      
+      // Create a blob from the response data
+      const blob = new Blob(
+        [response.data],
+        { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+      );
+      const url = window.URL.createObjectURL(blob);
+  
+      // Dynamically set file name based on the selected semester
+      const fileName = selectedSemester 
+        ? `archivedFeedback_${selectedSemester}.xlsx` 
+        : "archivedFeedback.xlsx";
+  
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error downloading feedback:", error);
+    }
+  };
+  
 
   return (
-    <div className="p-4">
+    <div className="p-4 h-full">
       <h1 className="text-xl font-bold mb-4">Archived Feedback</h1>
-      
+
       <div className="mb-4 flex gap-4">
-        <input
-          type="text"
-          placeholder="Search by Semester"
-          value={searchSemester}
-          onChange={(e) => setSearchSemester(e.target.value)}
-          className="border px-4 py-2 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
+        <select
+          value={selectedSemester}
+          onChange={(e) => setSelectedSemester(e.target.value)}
+          className="border px-3 py-1 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-[#6495ED]"
+        >
+          <option value="">All Semesters</option>
+          {allSemesters.map((semester) => (
+            <option key={semester} value={semester}>
+              {semester}
+            </option>
+          ))}
+        </select>
         <button
           onClick={downloadFeedback}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          className="bg-[#6495ED] text-white px-3 py-1 rounded-full shadow hover:bg-[#3b6ea5] focus:outline-none focus:ring-2 focus:ring-[#6495ED] focus:ring-offset-2"
         >
           Download
         </button>
       </div>
 
-      <div ref={tableContainerRef} className="overflow-x-auto overflow-y-auto w-[90%] max-w-[1200px] h-[400px] mt-4 border rounded-lg shadow-lg">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Course</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Student</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Professor</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Overall Grade</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Regularity In Meeting</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Attendance In Lectures</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Preparedness For Tutorials</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Timeliness Of Tasks</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Quality Of Work</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Attitude Commitment</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Nominated For Best TA</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Comments</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Semester</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-600">Archived Date</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredFeedback.map((feedback) => (
-              <tr key={feedback._id}>
-                <td className="px-4 py-2 text-sm text-gray-700">{feedback.course.name}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{feedback.student.name}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{feedback.professor.name}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{feedback.overallGrade}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{feedback.regularityInMeeting}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{feedback.attendanceInLectures}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{feedback.preparednessForTutorials}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{feedback.timelinessOfTasks}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{feedback.qualityOfWork}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{feedback.attitudeCommitment}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{feedback.nominatedForBestTA ? "Yes" : "No"}</td>
-                <td className="px-4 py-2 text-sm text-gray-700 break-words">{feedback.comments}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{feedback.semester}</td>
-                <td className="px-4 py-2 text-sm text-gray-700">{new Date(feedback.archivedDate).toLocaleString()}</td>
+      {loading && archivedFeedback.length === 0 ? (
+        <p>Loading archived feedback...</p>
+      ) : (
+        <div
+          ref={tableContainerRef}
+          className="overflow-auto w-full h-[calc(100vh-200px)] mt-4 border rounded-lg shadow-lg"
+          onScroll={handleScroll}
+        >
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr className="bg-[#3dafaa] shadow-lg rounded-lg p-3">
+                <th className="px-4 py-2 text-left text-sm font-semibold text-white">Course</th>
+                <th className="px-4 py-2 text-left text-sm font-semibold text-white">Student</th>
+                <th className="px-4 py-2 text-left text-sm font-semibold text-white">Professor</th>
+                <th className="px-4 py-2 text-left text-sm font-semibold text-white">Overall Grade</th>
+                <th className="px-4 py-2 text-left text-sm font-semibold text-white">Nominated For Best TA</th>
+                <th className="px-4 py-2 text-left text-sm font-semibold text-white">Comments</th>
+                <th className="px-4 py-2 text-left text-sm font-semibold text-white">Semester</th>
+                <th className="px-4 py-2 text-left text-sm font-semibold text-white">Archived Date</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {archivedFeedback.map((feedback) => (
+                <tr key={feedback._id}>
+                  <td className="px-4 py-2 text-sm text-gray-700">{feedback.course?.name}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700">{feedback.student?.name}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700">{feedback.professor?.name}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700">{feedback.overallGrade}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700">{feedback.nominatedForBestTA ? "Yes" : "No"}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700 break-words">{feedback.comments}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700">{feedback.semester}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700">
+                    {new Date(feedback.archivedDate).toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {archivedFeedback.length < total && (
+            <div className="p-4 text-center text-gray-500">Loading more feedback...</div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

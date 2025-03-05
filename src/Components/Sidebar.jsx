@@ -1,47 +1,58 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { 
+  FaHome, FaUserGraduate, FaBook, FaUpload, FaUniversity, 
+  FaChalkboardTeacher, FaClipboardList, FaComments, FaArchive, FaSignOutAlt 
+} from "react-icons/fa";
 
 const SideBar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const API = import.meta.env.VITE_API_URL;
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate(API);
-  };
-
-  const sidebarItems = [
-    { to: "/admin/", label: "Dashboard" },
-    { to: "/admin/student", label: "Students" },
-    { to: "/admin/course", label: "Courses" },
-    { to: "/admin/course-upload", label: "Upload Courses" },
-    { to: "/admin/department", label: "Allocate" },
-    { to: "/admin/professors", label: "Faculty" },
-    { to: "/admin/logs", label: "Logs" },
-    { to: "/admin/feedback", label: "Feedback" },
-    { to: "/admin/archived-feedback", label: "Archived Feedback" },
+  const items = [
+    { to: "/admin/", label: "Dashboard", icon: <FaHome /> },
+    { to: "/admin/student", label: "Students", icon: <FaUserGraduate /> },
+    { to: "/admin/course", label: "Courses", icon: <FaBook /> },
+    { to: "/admin/course-upload", label: "Update", icon: <FaUpload /> },
+    { to: "/admin/department", label: "Allocate", icon: <FaUniversity /> },
+    { to: "/admin/professors", label: "Faculty", icon: <FaChalkboardTeacher /> },
+    { to: "/admin/logs", label: "Logs", icon: <FaClipboardList /> },
+    { to: "/admin/feedback", label: "Feedback", icon: <FaComments /> },
+    { to: "/admin/archived-feedback", label: "Archives", icon: <FaArchive /> },
   ];
 
-  const commonClasses =
-    "bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold";
+  const common =
+    "flex items-center px-3 py-2 text-white font-medium transition-transform duration-200 hover:bg-[rgb(50,140,135)] hover:scale-105";
 
   return (
-    <div className="bg-[#3dafaa] h-screen text-center max-w-[95%] mt-4">
-      <nav className="flex flex-col" aria-label="Sidebar Navigation">
-        {sidebarItems.map((item, index) => (
-          <React.Fragment key={index}>
-            <Link to={item.to} className={commonClasses}>
-              {item.label}
+    <aside className="bg-gradient-to-b from-teal-500 to-cyan-500 w-36 h-screen shadow-lg rounded-lg p-3">
+      <nav className="flex flex-col space-y-2" aria-label="Sidebar Navigation">
+        {items.map((item, i) => {
+          const isActive = location.pathname === item.to;
+          return (
+            <Link
+              key={i}
+              to={item.to}
+              className={`${common} ${isActive ? "bg-[rgb(50,140,135)]" : ""} rounded`}
+            >
+              <span className="mr-2">{item.icon}</span>
+              <span className="text-xs">{item.label}</span>
             </Link>
-            <hr className="border-t-2" />
-          </React.Fragment>
-        ))}
-        <button className={commonClasses} onClick={handleLogout}>
-          Logout
+          );
+        })}
+        <button
+          className={`${common} rounded`}
+          onClick={() => {
+            localStorage.removeItem("token");
+            window.location.href = API;  // Redirects to the external URL
+          }}
+        >
+          <FaSignOutAlt className="mr-2" />
+          <span className="text-xs">Logout</span>
         </button>
-        <hr className="border-t-2" />
       </nav>
-    </div>
+    </aside>
   );
 };
 

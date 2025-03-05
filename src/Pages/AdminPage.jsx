@@ -17,10 +17,12 @@ const AdminPage = () => {
   return (
     <div className="fixed w-full">
       <AdminNav />
-      <div className="flex">
-        <div className="w-1/6 min-w-[300px]">
+      <div className="flex gap-0">
+        {/* Sidebar */}
+        <div className="w-44 transition-all duration-300">
           <SideBar />
         </div>
+        {/* Main Content - No gap between Sidebar and Content */}
         <div className="flex-1">
           <Routes>
             <Route element={<AdminStudent />} path="/student" />
@@ -29,9 +31,9 @@ const AdminPage = () => {
             <Route element={<AdminDashboard />} path="/" />
             <Route element={<CoursePage />} path="/department/:courseName" />
             <Route element={<AdminLog />} path="/logs" />
-            <Route element={<AdminProfessor/>} path="/professors" />
-            <Route element={<AdminJms/>} path="/jms" />
-            <Route element={<FeedbackList/>} path="/feedback" />
+            <Route element={<AdminProfessor />} path="/professors" />
+            <Route element={<AdminJms />} path="/jms" />
+            <Route element={<FeedbackList />} path="/feedback" />
             <Route element={<ArchivedFeedback />} path="/archived-feedback" />
           </Routes>
         </div>

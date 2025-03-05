@@ -206,16 +206,26 @@ const downloadFeedbacks = asyncHandler(async (req, res) => {
     }
 });
 
-// @desc Get all feedbacks
-// @route GET /api/feedback/all
+// @desc Get all feedbacks with pagination
+// @route GET /api/feedback/all?page=&limit=
 // @access Admin only
 const getAllFeedbacks = asyncHandler(async (req, res) => {
     try {
+        let { page, limit } = req.query;
+        page = parseInt(page) || 1;
+        limit = parseInt(limit) || 20;
+        const skip = (page - 1) * limit;
+
         const feedbacks = await Feedback.find()
             .populate('course', 'name code')
             .populate('student', 'name rollNo')
-            .populate('professor', 'name');
-        res.json({ feedbacks });
+            .populate('professor', 'name')
+            .skip(skip)
+            .limit(limit);
+
+        const total = await Feedback.countDocuments();
+
+        res.json({ feedbacks, total, page, limit });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
