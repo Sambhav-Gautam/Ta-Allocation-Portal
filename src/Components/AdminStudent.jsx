@@ -424,9 +424,9 @@ const Tablestudents = () => {
                   ].map((group, gIndex) => (
                     <div
                       key={gIndex}
-                      className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition-shadow duration-300 text-sm"
+                      className="bg-gradient-to-br from-white to-gray-50 p-4 rounded-lg shadow hover:shadow-lg transition-all duration-300 text-sm border border-gray-200 hover:bg-gray-50 hover:border-[#3dafaa]"
                     >
-                      <h3 className="text-lg font-semibold mb-3 border-b pb-2 text-[#3dafaa]">
+                      <h3 className="text-base font-semibold mb-3 border-b pb-2 text-[#3dafaa] border-[#3dafaa]/50">
                         {group.title}
                       </h3>
                       {(() => {
@@ -443,7 +443,7 @@ const Tablestudents = () => {
                                   S.No
                                 </div>
                                 <div className="w-7/12 text-center px-2 whitespace-normal">
-                                  Course Name
+                                  Course
                                 </div>
                                 <div className="w-4/12 text-center px-2 whitespace-normal">
                                   Grade
@@ -463,7 +463,7 @@ const Tablestudents = () => {
                                     className="flex border-b py-1"
                                   >
                                     <div className="w-1/12 text-center px-2 break-words">
-                                      {i + 1}
+                                      {i + 1}.
                                     </div>
                                     <div className="w-7/12 text-center px-2 break-words">
                                       {courseName}
@@ -484,7 +484,7 @@ const Tablestudents = () => {
                                   S.No
                                 </div>
                                 <div className="w-7/12 text-center px-2 whitespace-normal">
-                                  Course Name
+                                  Course
                                 </div>
                                 <div className="w-4/12 text-center px-2 whitespace-normal">
                                   Grade
@@ -498,7 +498,7 @@ const Tablestudents = () => {
                                     className="flex border-b py-1"
                                   >
                                     <div className="w-1/12 text-center px-2 break-words">
-                                      {i + 1}
+                                      {i + 1}.
                                     </div>
                                     <div className="w-7/12 text-center px-2 break-words">
                                       {courseName}
@@ -575,6 +575,5 @@ const Tablestudents = () => {
     </div>
   );
 };
-
 
 export default Tablestudents;
