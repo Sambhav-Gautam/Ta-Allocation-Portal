@@ -388,23 +388,72 @@ const Tablestudents = () => {
           </td>
         </tr>
         {expandedRowIndex === index && (
-          <tr key={`detail-${index}`}>
-            <td colSpan={summaryHeaders.length + 2}>
-              <div className="p-2 bg-gray-100">
-                <table className="w-full">
-                  <tbody>
-                    {customLabels.map((label, idx) => (
-                      <tr key={idx}>
-                        <td className="font-bold border p-1 break-words">{label}</td>
-                        <td className="border p-1 break-words">{data[idx]}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </td>
-          </tr>
-        )}
+  <tr key={`detail-${index}`}>
+    <td colSpan={summaryHeaders.length + 2}>
+      <div className="p-4 bg-gray-50">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            {
+              title: "Department Preferences",
+              items: [
+                { label: "Dept Pref 1", index: 7 },
+                { label: "Grade Dept Pref 1", index: 8 },
+                { label: "Dept Pref 2", index: 9 },
+                { label: "Grade Dept Pref 2", index: 10 },
+              ],
+            },
+            {
+              title: "Other Preferences",
+              items: [
+                { label: "Other Pref 1", index: 11 },
+                { label: "Grade Other Pref 1", index: 12 },
+                { label: "Other Pref 2", index: 13 },
+                { label: "Grade Other Pref 2", index: 14 },
+                { label: "Other Pref 3", index: 15 },
+                { label: "Grade Other Pref 3", index: 16 },
+                { label: "Other Pref 4", index: 17 },
+                { label: "Grade Other Pref 4", index: 18 },
+                { label: "Other Pref 5", index: 19 },
+                { label: "Grade Other Pref 5", index: 20 },
+              ],
+            },
+            {
+              title: "Non Preferences",
+              items: [
+                { label: "Non-Prefs 1", index: 21 },
+                { label: "Non-Prefs 2", index: 22 },
+                { label: "Non-Prefs 3", index: 23 },
+              ],
+            },
+          ].map((group, gIndex) => (
+            <div
+              key={gIndex}
+              className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition-shadow duration-300"
+            >
+              <h3 className="text-xl font-semibold mb-3 border-b pb-2 text-[#3dafaa]">
+                {group.title}
+              </h3>
+              {group.items.map((item, i) => (
+                <div
+                  key={i}
+                  className="flex justify-between py-2 border-b last:border-0"
+                >
+                  <span className="text-gray-700 font-medium">
+                    {item.label}
+                  </span>
+                  <span className="text-gray-900">
+                    {data[item.index]}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </td>
+  </tr>
+)}
+
       </React.Fragment>
     );
   };
