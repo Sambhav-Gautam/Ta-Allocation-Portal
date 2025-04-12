@@ -16,9 +16,7 @@ const Tablestudents = () => {
   const [editedStudentData, setEditedStudentData] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [loader, setLoader] = useState(false);
-  // New state for tracking which row is expanded (detail view)
   const [expandedRowIndex, setExpandedRowIndex] = useState(-1);
-  // State to track how many rows are currently visible
   const [visibleRowCount, setVisibleRowCount] = useState(20);
   const containerRef = useRef();
 
@@ -48,7 +46,8 @@ const Tablestudents = () => {
     "Non-Prefs 2",
     "Non-Prefs 3",
   ];
-  // Only display the first 7 columns (up to "TA Type") in the summary view
+
+  // Display first 7 columns in summary view
   const summaryHeaders = customLabels.slice(0, 7);
 
   const studentKeyMapping = {
@@ -92,9 +91,7 @@ const Tablestudents = () => {
     setEditingRow(rowIndex);
     let count = 0;
     for (const s of students) {
-      if (s._id === ID) {
-        break;
-      }
+      if (s._id === ID) break;
       count++;
     }
     setEditingStudentIndex(count);
@@ -106,7 +103,7 @@ const Tablestudents = () => {
     const originalStudentData = students[editingStudentIndex];
     const updatedData = {};
     const hasChanges = Object.keys(editedStudentData).some(
-      key => editedStudentData[key] !== students[editingStudentIndex][key]
+      key => editedStudentData[key] !== originalStudentData[key]
     );
 
     if (!hasChanges) {
@@ -180,7 +177,6 @@ const Tablestudents = () => {
     }
   }, [editingStudentIndex, students]);
 
-  // Prepare a flat array of student data. Append _id for internal use.
   const extractedData = students.map((student) => {
     const formattedData = customLabels.map((label) => {
       if (label === "Name") return student.name;
@@ -230,7 +226,6 @@ const Tablestudents = () => {
 
   useEffect(() => {
     setSortedStudent(extractedData);
-    // Reset visible rows whenever data changes (e.g., search or sort)
     setVisibleRowCount(20);
   }, [students]);
 
@@ -258,17 +253,13 @@ const Tablestudents = () => {
     setSortedStudent(sorted);
   };
 
-  // Handler to load more rows when the container is scrolled near the bottom
   const handleScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
     if (scrollHeight - scrollTop <= clientHeight + 50) {
-      setVisibleRowCount((prev) =>
-        Math.min(filteredStudents.length, prev + 10)
-      );
+      setVisibleRowCount((prev) => Math.min(filteredStudents.length, prev + 10));
     }
   };
 
-  // Render the header row with updated UI classes
   const renderHeaderRow = () => {
     return (
       <tr className="bg-[#3dafaa] text-white">
@@ -276,7 +267,10 @@ const Tablestudents = () => {
           S.No
         </th>
         {summaryHeaders.map((label, index) => (
-          <th className="border-b py-3 px-4 text-center font-semibold break-words" key={index}>
+          <th
+            key={index}
+            className="border-b py-3 px-4 text-center font-semibold break-words"
+          >
             <button
               className="w-full flex justify-center"
               onClick={() => handleSort(index)}
@@ -298,7 +292,6 @@ const Tablestudents = () => {
     );
   };
 
-  // Render a summary row (and detail row if expanded) with updated cell styling
   const renderSummaryRow = (data, index) => {
     const isEditing = index === editingRow;
     return (
@@ -313,7 +306,7 @@ const Tablestudents = () => {
         >
           <td className="border-b py-2 px-3 break-words">{index + 1}</td>
           {data.slice(0, 7).map((item, itemIndex) => (
-            <td className="border-b py-2 px-3 break-words" key={itemIndex}>
+            <td key={itemIndex} className="border-b py-2 px-3 break-words">
               {isEditing ? (
                 <input
                   type="text"
@@ -330,7 +323,10 @@ const Tablestudents = () => {
               )}
             </td>
           ))}
-          <td className="border-b py-2 px-3 break-words" onClick={(e) => e.stopPropagation()}>
+          <td
+            className="border-b py-2 px-3 break-words"
+            onClick={(e) => e.stopPropagation()}
+          >
             {isEditing ? (
               loader ? (
                 <div className="flex justify-center">
@@ -390,17 +386,136 @@ const Tablestudents = () => {
         {expandedRowIndex === index && (
           <tr key={`detail-${index}`}>
             <td colSpan={summaryHeaders.length + 2}>
-              <div className="p-2 bg-gray-100">
-                <table className="w-full">
-                  <tbody>
-                    {customLabels.map((label, idx) => (
-                      <tr key={idx}>
-                        <td className="font-bold border p-1 break-words">{label}</td>
-                        <td className="border p-1 break-words">{data[idx]}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="p-4 bg-gray-50">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    {
+                      title: "Department Preferences",
+                      items: [
+                        { label: "Dept Pref 1", index: 7 },
+                        { label: "Grade Dept Pref 1", index: 8 },
+                        { label: "Dept Pref 2", index: 9 },
+                        { label: "Grade Dept Pref 2", index: 10 },
+                      ],
+                    },
+                    {
+                      title: "Other Preferences",
+                      items: [
+                        { label: "Other Pref 1", index: 11 },
+                        { label: "Grade Other Pref 1", index: 12 },
+                        { label: "Other Pref 2", index: 13 },
+                        { label: "Grade Other Pref 2", index: 14 },
+                        { label: "Other Pref 3", index: 15 },
+                        { label: "Grade Other Pref 3", index: 16 },
+                        { label: "Other Pref 4", index: 17 },
+                        { label: "Grade Other Pref 4", index: 18 },
+                        { label: "Other Pref 5", index: 19 },
+                        { label: "Grade Other Pref 5", index: 20 },
+                      ],
+                    },
+                    {
+                      title: "Non Preferences",
+                      items: [
+                        { label: "Non-Prefs 1", index: 21 },
+                        { label: "Non-Prefs 2", index: 22 },
+                        { label: "Non-Prefs 3", index: 23 },
+                      ],
+                    },
+                  ].map((group, gIndex) => (
+                    <div
+                      key={gIndex}
+                      className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition-shadow duration-300 text-sm"
+                    >
+                      <h3 className="text-lg font-semibold mb-3 border-b pb-2 text-[#3dafaa]">
+                        {group.title}
+                      </h3>
+                      {(() => {
+                        // For Department & Other Preferences
+                        if (
+                          group.title === "Department Preferences" ||
+                          group.title === "Other Preferences"
+                        ) {
+                          const rowCount = group.items.length / 2;
+                          return (
+                            <>
+                              <div className="flex font-bold border-b pb-1">
+                                <div className="w-1/12 text-center px-2 whitespace-normal">
+                                  S.No
+                                </div>
+                                <div className="w-7/12 text-center px-2 whitespace-normal">
+                                  Course Name
+                                </div>
+                                <div className="w-4/12 text-center px-2 whitespace-normal">
+                                  Grade
+                                </div>
+                              </div>
+                              {Array.from({ length: rowCount }).map((_, i) => {
+                                const courseItem = group.items[i * 2];
+                                const gradeItem = group.items[i * 2 + 1];
+                                const courseName = data[courseItem.index];
+                                let grade = data[gradeItem.index];
+                                if (grade === "Course Not Done") {
+                                  grade = "N/A";
+                                }
+                                return (
+                                  <div
+                                    key={i}
+                                    className="flex border-b py-1"
+                                  >
+                                    <div className="w-1/12 text-center px-2 break-words">
+                                      {i + 1}
+                                    </div>
+                                    <div className="w-7/12 text-center px-2 break-words">
+                                      {courseName}
+                                    </div>
+                                    <div className="w-4/12 text-center px-2 break-words">
+                                      {grade}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </>
+                          );
+                        } else if (group.title === "Non Preferences") {
+                          return (
+                            <>
+                              <div className="flex font-bold border-b pb-1">
+                                <div className="w-1/12 text-center px-2 whitespace-normal">
+                                  S.No
+                                </div>
+                                <div className="w-7/12 text-center px-2 whitespace-normal">
+                                  Course Name
+                                </div>
+                                <div className="w-4/12 text-center px-2 whitespace-normal">
+                                  Grade
+                                </div>
+                              </div>
+                              {group.items.map((item, i) => {
+                                const courseName = data[item.index];
+                                return (
+                                  <div
+                                    key={i}
+                                    className="flex border-b py-1"
+                                  >
+                                    <div className="w-1/12 text-center px-2 break-words">
+                                      {i + 1}
+                                    </div>
+                                    <div className="w-7/12 text-center px-2 break-words">
+                                      {courseName}
+                                    </div>
+                                    <div className="w-4/12 text-center px-2 break-words">
+                                      N/A
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </>
+                          );
+                        }
+                      })()}
+                    </div>
+                  ))}
+                </div>
               </div>
             </td>
           </tr>
@@ -441,7 +556,6 @@ const Tablestudents = () => {
           Download
         </button>
       </div>
-      {/* Table container with UI enhancements */}
       <div
         ref={containerRef}
         className="overflow-auto w-full max-h-[80vh] mt-4"
@@ -461,5 +575,6 @@ const Tablestudents = () => {
     </div>
   );
 };
+
 
 export default Tablestudents;
