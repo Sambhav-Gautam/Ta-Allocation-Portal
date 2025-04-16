@@ -12,6 +12,7 @@ import AuthContext from "../context/AuthContext";
 import CourseContext from "../context/CourseContext";
 import StudentContext from "../context/StudentContext";
 import MultiSelect from './Multi';
+import React from "react";
 import PreviewModal from './modal';
 
 const CoursePage = () => {
@@ -42,6 +43,12 @@ const CoursePage = () => {
 
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [previewData, setPreviewData] = useState([]);
+
+  // New state and toggle function in your component:
+  const [expandedStudentId, setExpandedStudentId] = useState(null);
+  const toggleExpanded = (studentId) => {
+    setExpandedStudentId(expandedStudentId === studentId ? null : studentId);
+  };
 
   const fetchCurrentRound = async () => {
     try {
@@ -463,18 +470,20 @@ const filterStudents = (studentsList) => {
         {showDeallocateButton && (
           <td className="border p-2">
             <button
-              className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer font-bold"
+              className="bg-red-600 text-white px-4 py-2 rounded-full text-base font-medium hover:bg-red-800 transition duration-200"
               onClick={() => handleDeallocate(student._id)}
             >
               Deallocate
             </button>
+
           </td>
         )}
       </tr>
     );
   };
 
-const renderAvailableRow = (student) => {
+// Updated renderAvailableRow (unchanged logic except to add an onClick handler):
+const renderAvailableRow = (student, onRowClick) => {
   let pref = "Not Any";
   let grade = "No Grade";
   const coursePreference = findCourseInPreferences(student, selectedCourse.name);
@@ -500,17 +509,17 @@ const renderAvailableRow = (student) => {
     !(user.role === "professor" && (currentRound === null || currentRound > 1));
 
   // Determine button styling and disabled state
-const allocateButtonClass =
-student.allocationStatus === 1 && student.allocatedTA !== selectedCourse.name
-  ? "bg-gray-400 cursor-not-allowed"
-  : "bg-[#6495ED] hover:bg-[#3b6ea5] cursor-pointer";
-const allocateButtonDisabled =
-student.allocationStatus === 1 &&
-student.allocatedTA !== selectedCourse.name &&
-currentRound === null;
+  const allocateButtonClass =
+    student.allocationStatus === 1 && student.allocatedTA !== selectedCourse.name
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-[#6495ED] hover:bg-[#3b6ea5] cursor-pointer";
+  const allocateButtonDisabled =
+    student.allocationStatus === 1 &&
+    student.allocatedTA !== selectedCourse.name &&
+    currentRound === null;
 
   return (
-    <tr className="text-center">
+    <tr onClick={onRowClick} className="text-center cursor-pointer">
       <td className="border p-2">{student.name}</td>
       <td className="border p-2">{student.emailId}</td>
       <td className="border p-2">{student.program}</td>
@@ -523,7 +532,11 @@ currentRound === null;
         </>
       )}
       {showAllocateButton && (
-        <td className="border p-2">
+        <td
+          className="border p-2"
+          // Prevents the row’s onClick from firing when clicking the Allocate button:
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
             className={`${allocateButtonClass} text-white px-2 py-1 rounded-full font-bold text-sm`}
             onClick={() => handleAllocate(student._id)}
@@ -534,6 +547,187 @@ currentRound === null;
         </td>
       )}
     </tr>
+  );
+};
+
+const StudentPreferenceCards = ({ student }) => {
+  const customLabels = [
+    "Name",
+    "Email Id",
+    "Roll No",
+    "CGPA",
+    "Program",
+    "Department",
+    "TA Type",
+    "Dept Pref 1",
+    "Grade Dept Pref 1",
+    "Dept Pref 2",
+    "Grade Dept Pref 2",
+    "Other Pref 1",
+    "Grade Other Pref 1",
+    "Other Pref 2",
+    "Grade Other Pref 2",
+    "Other Pref 3",
+    "Grade Other Pref 3",
+    "Other Pref 4",
+    "Grade Other Pref 4",
+    "Other Pref 5",
+    "Grade Other Pref 5",
+    "Non-Prefs 1",
+    "Non-Prefs 2",
+    "Non-Prefs 3",
+  ];
+
+  // Extract the student data into an ordered array
+  const extractedData = customLabels.map((label) => {
+    if (label.startsWith("Dept Pref ")) {
+      const index = parseInt(label.replace("Dept Pref ", ""), 10) - 1;
+      return index < student.departmentPreferences.length
+        ? student.departmentPreferences[index].course
+        : "";
+    } else if (label.startsWith("Grade Dept Pref ")) {
+      const index = parseInt(label.replace("Grade Dept Pref ", ""), 10) - 1;
+      return index < student.departmentPreferences.length
+        ? student.departmentPreferences[index].grade
+        : "";
+    } else if (label.startsWith("Other Pref ")) {
+      const index = parseInt(label.replace("Other Pref ", ""), 10) - 1;
+      return index < student.nonDepartmentPreferences.length
+        ? student.nonDepartmentPreferences[index].course
+        : "";
+    } else if (label.startsWith("Grade Other Pref ")) {
+      const index = parseInt(label.replace("Grade Other Pref ", ""), 10) - 1;
+      return index < student.nonDepartmentPreferences.length
+        ? student.nonDepartmentPreferences[index].grade
+        : "";
+    } else if (label.startsWith("Non-Prefs")) {
+      const index = parseInt(label.split(" ")[1], 10) - 1;
+      return index < student.nonPreferences.length
+        ? student.nonPreferences[index]
+        : "";
+    } else {
+      return student[label.replace(" ", "").toLowerCase()] || "";
+    }
+  });
+
+  // Define preference groups and indices according to customLabels order.
+  const preferenceGroups = [
+    {
+      title: "Department Preferences",
+      items: [
+        { label: "Dept Pref 1", index: 7 },
+        { label: "Grade Dept Pref 1", index: 8 },
+        { label: "Dept Pref 2", index: 9 },
+        { label: "Grade Dept Pref 2", index: 10 },
+      ],
+    },
+    {
+      title: "Other Preferences",
+      items: [
+        { label: "Other Pref 1", index: 11 },
+        { label: "Grade Other Pref 1", index: 12 },
+        { label: "Other Pref 2", index: 13 },
+        { label: "Grade Other Pref 2", index: 14 },
+        { label: "Other Pref 3", index: 15 },
+        { label: "Grade Other Pref 3", index: 16 },
+        { label: "Other Pref 4", index: 17 },
+        { label: "Grade Other Pref 4", index: 18 },
+        { label: "Other Pref 5", index: 19 },
+        { label: "Grade Other Pref 5", index: 20 },
+      ],
+    },
+    {
+      title: "Non Preferences",
+      items: [
+        { label: "Non-Prefs 1", index: 21 },
+        { label: "Non-Prefs 2", index: 22 },
+        { label: "Non-Prefs 3", index: 23 },
+      ],
+    },
+  ];
+
+  return (
+    <div className="p-4 bg-gray-100 mt-2 rounded">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {preferenceGroups.map((group, gIndex) => (
+          <div
+            key={gIndex}
+            className="bg-gradient-to-br from-white to-gray-50 p-4 rounded-lg shadow hover:shadow-lg transition-all duration-300 text-sm border border-gray-200 hover:bg-gray-50 hover:border-[#3dafaa]"
+          >
+            <h4 className="text-base font-semibold mb-3 border-b pb-2 text-[#3dafaa] border-[#3dafaa]/50">
+              {group.title}
+            </h4>
+            {(group.title === "Department Preferences" ||
+              group.title === "Other Preferences") && (
+              <>
+                <div className="flex font-bold border-b pb-1">
+                  <div className="w-1/12 text-center px-2 break-words">
+                    S.No
+                  </div>
+                  <div className="w-7/12 text-center px-2 break-words">
+                    Course
+                  </div>
+                  <div className="w-4/12 text-center px-2 break-words">
+                    Grade
+                  </div>
+                </div>
+                {Array.from({ length: group.items.length / 2 }).map((_, i) => {
+                  const courseItem = group.items[i * 2];
+                  const gradeItem = group.items[i * 2 + 1];
+                  const courseName = extractedData[courseItem.index] || "-";
+                  let grade = extractedData[gradeItem.index] || "-";
+                  if (grade === "Course Not Done") grade = "N/A";
+                  return (
+                    <div key={i} className="flex border-b py-1">
+                      <div className="w-1/12 text-center px-2 break-words">
+                        {i + 1}.
+                      </div>
+                      <div className="w-7/12 text-center px-2 break-words">
+                        {courseName}
+                      </div>
+                      <div className="w-4/12 text-center px-2 break-words">
+                        {grade}
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            )}
+            {group.title === "Non Preferences" && (
+              <>
+                <div className="flex font-bold border-b pb-1">
+                  <div className="w-1/12 text-center px-2 break-words">
+                    S.No
+                  </div>
+                  <div className="w-7/12 text-center px-2 break-words">
+                    Course
+                  </div>
+                  <div className="w-4/12 text-center px-2 break-words">
+                    Grade
+                  </div>
+                </div>
+                {group.items.map((item, i) => {
+                  const courseName = extractedData[item.index] || "-";
+                  return (
+                    <div key={i} className="flex border-b py-1">
+                      <div className="w-1/12 text-center px-2 break-words">
+                        {i + 1}.
+                      </div>
+                      <div className="w-7/12 text-center px-2 break-words">
+                        {courseName}
+                      </div>
+                      <div className="w-4/12 text-center px-2 break-words">
+                        N/A
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 
@@ -611,34 +805,35 @@ const renderAllocatedToOthers = (student) => {
 
   const renderCommonHeader = (title, currentRound, handlePrefFilter) => {
     return (
-      <div className="flex">
-        <h2 className="text-2xl font-bold mb-2 mr-2">{title}</h2>
+      <div className="flex flex-wrap items-center bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
+        <h2 className="text-2xl font-extrabold text-gray-800 mr-4">{title}</h2>
         {currentRound !== 1 && (
-          <div className="mb-1 mr-2">
-          <h2 className="mt-2 mr-2 inline-block">Preference:</h2>
-          <MultiSelect
-            options={[
-              "All",
-              "Dept Preference 1",
-              "Dept Preference 2",
-              "Non-Department Preference 1",
-              "Non-Department Preference 2",
-              "Non-Department Preference 3",
-              "Non-Department Preference 4",
-              "Non-Department Preference 5",
-              "Not Preferred",
-              "Not Any"
-            ]}
-            onChange={handlePrefFilter}
-          />
-        </div>
+          <div className="flex items-center mr-4 mb-2">
+            <span className="mr-2 text-gray-700 font-medium">Preference:</span>
+            <MultiSelect
+              options={[
+                "All",
+                "Dept Preference 1",
+                "Dept Preference 2",
+                "Non-Department Preference 1",
+                "Non-Department Preference 2",
+                "Non-Department Preference 3",
+                "Non-Department Preference 4",
+                "Non-Department Preference 5",
+                "Not Preferred",
+                "Not Any"
+              ]}
+              onChange={handlePrefFilter}
+              className="w-48"
+            />
+          </div>
         )}
-        <div className="mb-1 mr-2">
-          <h2 className="mt-2 mr-2 inline-block">Program:</h2>
+        <div className="flex items-center mr-4 mb-2">
+          <span className="mr-2 text-gray-700 font-medium">Program:</span>
           <select
             name=""
             id=""
-            className="px-2 py-2 border border-[#3dafaa] rounded inline-block"
+            className="px-3 py-2 border border-[#3dafaa] rounded focus:outline-none focus:ring-2 focus:ring-[#3dafaa] transition duration-200"
             onChange={handleProgramFilter}
           >
             <option value="All">All</option>
@@ -649,13 +844,12 @@ const renderAllocatedToOthers = (student) => {
             <option value="PhD">PhD</option>
           </select>
         </div>
-
-        <div className="mb-1 mr-2">
-          <h2 className="mt-2 mr-2 inline-block">Department:</h2>
+        <div className="flex items-center mr-4 mb-2">
+          <span className="mr-2 text-gray-700 font-medium">Department:</span>
           <select
             name=""
             id=""
-            className="px-2 py-2 border border-[#3dafaa] rounded inline-block"
+            className="px-3 py-2 border border-[#3dafaa] rounded focus:outline-none focus:ring-2 focus:ring-[#3dafaa] transition duration-200"
             onChange={handleDepartmentFilter}
           >
             <option value="All">All</option>
@@ -668,17 +862,17 @@ const renderAllocatedToOthers = (student) => {
           </select>
         </div>
         {title === "Available Students" && (
-        <button
-        onClick={downloadAvailableStudents}
-        className="bg-[#6495ED] hover:bg-[#3b6ea5] text-white px-2 py-1 rounded-full font-bold text-sm"
-      >
-        Download
-      </button>
-      
-      )}
+          <button
+            onClick={downloadAvailableStudents}
+            className="bg-[#6495ED] hover:bg-[#3b6ea5] text-white px-4 py-2 rounded-full font-bold text-sm mb-2"
+          >
+            Download
+          </button>
+        )}
       </div>
     );
   };
+  
 
   // New ModularTable component for reusability
 const ModularTable = ({ children }) => (
@@ -703,77 +897,89 @@ const renderSortButton = (label, sortKey) => (
 
 return (
   <div>
-    <div className="flex">
-      <h1 className="text-2xl font-bold m-5">{selectedCourse.name},</h1>
-      <div className="flex items-center">
-        <p className="text-1xl font-bold mr-2">Ongoing Round:</p>
-        <p className="text-1xl flex mr-1">Round</p>
-        <p className="text-1xl flex mr-1">{currentRound}</p>
+    <div className="flex flex-wrap items-center justify-between mb-1 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+    <div className="flex items-center flex-wrap">
+      <h1 className="text-2xl font-extrabold text-gray-800 mr-4 mb-2">{selectedCourse.name},</h1>
+      <div className="flex items-center space-x-2 text-gray-700 font-medium mb-2">
+        <p className="text-base">Ongoing Round:</p>
+        <p className="text-base">Round</p>
+        <p className="text-base font-semibold">{currentRound}</p>
       </div>
     </div>
+  </div>
 
-    <div className="flex justify-between">
-      <div className="flex">
-        <button
-          type="button"
-          className="px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] text-[#3dafaa] hover:bg-[#3dafaa] hover:text-white mr-4"
-          onClick={handleHomeClick}
-        >
-          Home
-        </button>
-        <button
-          type="button"
-          className={`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${
-            allocated === 0 ? "bg-[#3dafaa] text-white" : "text-[#3dafaa]"
-          } hover:bg-[#3dafaa] hover:text-white mr-4`}
-          onClick={handleRenderAvailableStudentTable}
-        >
-          Available Student
-        </button>
-        <button
-          type="button"
-          className={`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${
-            allocated === 1 ? "bg-[#3dafaa] text-white" : "text-[#3dafaa]"
-          } hover:bg-[#3dafaa] hover:text-white mr-2`}
-          onClick={handleRenderAllocatedTable}
-        >
-          Student Allocated to {selectedCourse.acronym}
-        </button>
-        <button
-          type="button"
-          className={`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${
-            allocated === 2 ? "bg-[#3dafaa] text-white" : "text-[#3dafaa]"
-          } hover:bg-[#3dafaa] hover:text-white mr-2`}
-          onClick={handleRenderAllocatedToOthersTable}
-        >
-          Student Allocated to others courses
-        </button>
+  <div className="flex flex-wrap items-center justify-between bg-white p-4 rounded-lg shadow-sm border border-gray-200 -mb-4">
+    <div className="flex flex-wrap items-center space-x-2">
+      <button
+        type="button"
+        className="px-4 py-2 rounded-full border border-[#3dafaa] text-[#3dafaa] hover:bg-[#3dafaa] hover:text-white transition"
+        onClick={handleHomeClick}
+      >
+        Home
+      </button>
 
-        <form className="w-[350px]">
-          <div className="relative mr-2">
-            <input
-              type="search"
-              placeholder="Search Student..."
-              className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus:border-[#3dafaa]"
-              value={searchQuery}
-              onChange={handleSearch}
-            />
-            <button className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#3dafaa] rounded-full search-button">
-              <AiOutlineSearch />
-            </button>
-          </div>
-        </form>
+      <button
+        type="button"
+        className={`px-4 py-2 rounded-full border border-[#3dafaa] transition ${
+          allocated === 0 ? "bg-[#3dafaa] text-white" : "text-[#3dafaa]"
+        } hover:bg-[#3dafaa] hover:text-white`}
+        onClick={handleRenderAvailableStudentTable}
+      >
+        Available Student
+      </button>
+
+      <button
+        type="button"
+        className={`px-4 py-2 rounded-full border border-[#3dafaa] transition ${
+          allocated === 1 ? "bg-[#3dafaa] text-white" : "text-[#3dafaa]"
+        } hover:bg-[#3dafaa] hover:text-white`}
+        onClick={handleRenderAllocatedTable}
+      >
+        Student Allocated to {selectedCourse.acronym}
+      </button>
+
+      <button
+        type="button"
+        className={`px-4 py-2 rounded-full border border-[#3dafaa] transition ${
+          allocated === 2 ? "bg-[#3dafaa] text-white" : "text-[#3dafaa]"
+        } hover:bg-[#3dafaa] hover:text-white`}
+        onClick={handleRenderAllocatedToOthersTable}
+      >
+        Student Allocated to others courses
+      </button>
+    </div>
+
+    <form className="mt-4 sm:mt-0 w-full sm:w-[350px]">
+      <div className="relative ">
+        <input
+          type="search"
+          placeholder="Search Student..."
+          className="w-full py-2 px-4 pr-10 rounded-full border border-[#3dafaa] outline-none focus:ring-2 focus:ring-[#3dafaa] transition"
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+        <button
+          type="submit"
+          className="absolute right-1 top-1/2 transform -translate-y-1/2 p-2 bg-[#3dafaa] text-white rounded-full hover:bg-[#349d95] transition"
+        >
+          <AiOutlineSearch />
+        </button>
       </div>
+    </form>
+
+
       {allocated === 1 && (
         <div>
           <button
-            className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold mr-6"
+            className="bg-[#4E9F3D] text-white px-4 py-2 rounded-full text-base font-medium cursor-pointer mr-4 hover:brightness-105 transition duration-200"
+
             onClick={handlePreview}
           >
             Preview Data
           </button>
           <button
-            className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold mr-6"
+            className="bg-[#F4A261] text-white px-4 py-2 rounded-full text-base font-medium cursor-pointer mr-4 hover:brightness-105 transition duration-200"
+
             onClick={handleDownload}
           >
             Download
@@ -853,73 +1059,88 @@ return (
       </div>
     )}
 
-    {allocated === 0 && (
-      <div className="m-5">
-        {renderCommonHeader("Available Students", currentRound, handlePrefFilter)}
-        <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 260px)" }}>
-          <ModularTable>
-            <thead className="sticky top-0">
-              <tr className="bg-[#3dafaa] text-white">
+
+{allocated === 0 && (
+  <div className="m-5">
+    {renderCommonHeader("Available Students", currentRound, handlePrefFilter)}
+    <div
+      className="overflow-auto"
+      style={{ maxHeight: "calc(100vh - 260px)" }}
+    >
+      <ModularTable>
+        <thead className="sticky top-0">
+          <tr className="bg-[#3dafaa] text-white">
+            <th className="border p-2 text-center bg-[#3dafaa] text-white">
+              <div className="flex justify-center">
+                {renderSortButton("Name", "name")}
+              </div>
+            </th>
+            <th className="border p-2 text-center bg-[#3dafaa] text-white">
+              <div className="flex justify-center">
+                {renderSortButton("Email", "emailId")}
+              </div>
+            </th>
+            <th className="border p-2 text-center bg-[#3dafaa] text-white">
+              <div className="flex justify-center">
+                {renderSortButton("Program", "program")}
+              </div>
+            </th>
+            <th className="border p-2 text-center bg-[#3dafaa] text-white">
+              <div className="flex justify-center">
+                {renderSortButton("Department", "department")}
+              </div>
+            </th>
+            {currentRound !== 1 && (
+              <>
                 <th className="border p-2 text-center bg-[#3dafaa] text-white">
                   <div className="flex justify-center">
-                    {renderSortButton("Name", "name")}
+                    {renderSortButton("CGPA", "cgpa")}
                   </div>
                 </th>
                 <th className="border p-2 text-center bg-[#3dafaa] text-white">
-                  <div className="flex justify-center">
-                    {renderSortButton("Email", "emailId")}
-                  </div>
+                  Grade
                 </th>
                 <th className="border p-2 text-center bg-[#3dafaa] text-white">
                   <div className="flex justify-center">
-                    {renderSortButton("Program", "program")}
+                    {renderSortButton("Preference", "preference")}
                   </div>
                 </th>
-                <th className="border p-2 text-center bg-[#3dafaa] text-white">
-                  <div className="flex justify-center">
-                    {renderSortButton("Department", "department")}
-                  </div>
-                </th>
-                {currentRound !== 1 && (
-                  <>
-                    <th className="border p-2 text-center bg-[#3dafaa] text-white">
-                      <div className="flex justify-center">
-                        {renderSortButton("CGPA", "cgpa")}
-                      </div>
-                    </th>
-                    <th className="border p-2 text-center bg-[#3dafaa] text-white">
-                      Grade
-                    </th>
-                    <th className="border p-2 text-center bg-[#3dafaa] text-white">
-                      <div className="flex justify-center">
-                        {renderSortButton("Preference", "preference")}
-                      </div>
-                    </th>
-                  </>
-                )}
-                {user.role === "professor" &&
-                (currentRound === null || currentRound > 1) ? null : (
-                  <th className="border p-2 bg-[#3dafaa] text-white">Action</th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStudents.map((student) => renderAvailableRow(student))}
-            </tbody>
-          </ModularTable>
-        </div>
-      </div>
-    )}
+              </>
+            )}
+            {user.role === "professor" &&
+            (currentRound === null || currentRound > 1) ? null : (
+              <th className="border p-2 bg-[#3dafaa] text-white">Action</th>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {filteredStudents.map((student) => (
+            <React.Fragment key={student._id}>
+              {renderAvailableRow(student, () => toggleExpanded(student._id))}
+              {expandedStudentId === student._id && (
+                <tr>
+                  <td colSpan={currentRound !== 1 ? 8 : 5}>
+                    <StudentPreferenceCards student={student} />
+                  </td>
+                </tr>
+              )}
+            </React.Fragment>
+          ))}
+        </tbody>
+      </ModularTable>
+    </div>
+  </div>
+)}
 
     {allocated === 2 && (
       <div className="m-5">
-        <div className="flex">
-          <h2 className="text-2xl font-bold mb-2 mr-2">
+        <div className="flex flex-wrap items-center gap-4 bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
+          <h2 className="text-2xl font-bold text-gray-800">
             Allocated Students to other courses
           </h2>
           {currentRound !== 0 && (
-            <div className="mb-1 mr-2">
-              <h2 className="mt-2 mr-2 inline-block">Preference:</h2>
+            <div className="flex items-center space-x-2">
+              <h2 className="text-gray-700 font-medium">Preference:</h2>
               <MultiSelect
                 options={[
                   "All",
@@ -937,10 +1158,10 @@ return (
               />
             </div>
           )}
-          <div className="mb-1 mr-2">
-            <h2 className="mt-2 mr-2 inline-block">Program:</h2>
+          <div className="flex items-center space-x-2">
+            <h2 className="text-gray-700 font-medium">Program:</h2>
             <select
-              className="px-2 py-2 border border-[#3dafaa] rounded inline-block"
+              className="px-3 py-2 border border-[#3dafaa] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#3dafaa]"
               onChange={handleProgramFilter}
             >
               <option value="All">All</option>
@@ -951,10 +1172,10 @@ return (
               <option value="PhD">PhD</option>
             </select>
           </div>
-          <div className="mb-1 mr-2">
-            <h2 className="mt-2 mr-2 inline-block">Department:</h2>
+          <div className="flex items-center space-x-2">
+            <h2 className="text-gray-700 font-medium">Department:</h2>
             <select
-              className="px-2 py-2 border border-[#3dafaa] rounded inline-block"
+              className="px-3 py-2 border border-[#3dafaa] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#3dafaa]"
               onChange={handleDepartmentFilter}
             >
               <option value="All">All</option>
@@ -967,41 +1188,41 @@ return (
             </select>
           </div>
         </div>
-        <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 260px)" }}>
+        <div className="overflow-auto rounded-md shadow-sm border border-gray-200 bg-white" style={{ maxHeight: "calc(100vh - 260px)" }}>
           <ModularTable>
-            <thead className="sticky top-0">
-              <tr className="bg-[#3dafaa] text-white">
-                <th className="border p-2 text-center bg-[#3dafaa] text-white">
+            <thead className="sticky top-0 z-10">
+              <tr className="bg-[#3dafaa] text-white text-sm">
+                <th className="border p-2 text-center">
                   <div className="flex justify-center">
                     {renderSortButton("Name", "name")}
                   </div>
                 </th>
-                <th className="border p-2 text-center bg-[#3dafaa] text-white">
+                <th className="border p-2 text-center">
                   <div className="flex justify-center">
                     {renderSortButton("Email", "emailId")}
                   </div>
                 </th>
-                <th className="border p-2 text-center bg-[#3dafaa] text-white">
+                <th className="border p-2 text-center">
                   <div className="flex justify-center">
                     {renderSortButton("Program", "program")}
                   </div>
                 </th>
-                <th className="border p-2 text-center bg-[#3dafaa] text-white">
+                <th className="border p-2 text-center">
                   <div className="flex justify-center">
                     {renderSortButton("Department", "department")}
                   </div>
                 </th>
                 {currentRound !== 1 && (
                   <>
-                    <th className="border p-2 text-center bg-[#3dafaa] text-white">
+                    <th className="border p-2 text-center">
                       <div className="flex justify-center">
                         {renderSortButton("CGPA", "cgpa")}
                       </div>
                     </th>
-                    <th className="border p-2 text-center bg-[#3dafaa] text-white">
+                    <th className="border p-2 text-center">
                       Grade
                     </th>
-                    <th className="border p-2 text-center bg-[#3dafaa] text-white">
+                    <th className="border p-2 text-center">
                       <div className="flex justify-center">
                         {renderSortButton("Preference", "preference")}
                       </div>
