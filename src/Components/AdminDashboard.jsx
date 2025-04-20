@@ -204,20 +204,18 @@ const Dashboard = () => {
     }
   };
 
-  const closeFeedbackForm = () => {
-    axios
-      .post(`${API}/api/feedback/end`)
-      .then((response) => {
-        if (response.status === 200) {
-          getFeedbackFormStatus();
-        } else {
-          console.error("Failed to close feedback form");
-        }
-      })
-      .catch((error) => {
-        console.error("Error closing feedback form:", error);
-      });
-  };
+  // somewhere in your UI logic
+const closeFeedbackForm = () => {
+  axios
+    .post(`${API}/api/feedback/close`)
+    .then((response) => {
+      console.log(response.data.message);   // e.g. "Feedback form closed for Spring 2025."
+      getFeedbackFormStatus();              // refresh your status indicator
+    })
+    .catch((error) => {
+      console.error("Error closing feedback form:", error.response?.data || error.message);
+    });
+};
 
   const buttonClass =
   "bg-[#3dafaa] text-white font-bold text-base py-2 px-4 rounded-full focus:outline-none focus:shadow-outline transition-colors duration-200";

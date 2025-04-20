@@ -91,6 +91,11 @@ const StudentForm = () => {
   const [commitmentChecked, setCommitmentChecked] = React.useState(false);
   const [trainingChecked, setTrainingChecked] = React.useState(false);
   const [dataCorrect, setDataCorrect] = useState(false);
+  const [allocationAcknowledged, setAllocationAcknowledged] = useState(false);
+  const handleAllocationAcknowledgedChange = (e) => {
+  setAllocationAcknowledged(e.target.checked);
+};
+
   // Corresponding handlers
   const handleCommitmentChange = (e) => {
     setCommitmentChecked(e.target.checked);
@@ -111,7 +116,7 @@ const StudentForm = () => {
       }
     }
     // Verify that all checkboxes are checked
-    return !(commitmentChecked && trainingChecked && dataCorrect);
+    return !(commitmentChecked && trainingChecked && dataCorrect && allocationAcknowledged);
   };
   
 
@@ -233,6 +238,11 @@ const StudentForm = () => {
           return;
         }
       }
+      if (!allocationAcknowledged) {
+        alert("Please acknowledge the allocation disclaimer.");
+        return;
+      }
+      
 
       for (const pref of formData.nonPreferences) {
         if (pref === "") {
@@ -322,6 +332,22 @@ const StudentForm = () => {
 
             <form onSubmit={handleSubmit}>
             <div className="mb-6 p-4 border-l-4 border-[#3dafaa] bg-[#f0fafa] rounded-lg shadow-sm">
+              {/* Allocation Disclaimer */}
+            <div className="mb-0 mt-4">
+              <label className="inline-flex items-start">
+                <input
+                  type="checkbox"
+                  className="form-checkbox mt-1 h-5 w-5 text-[#3dafaa]"
+                  checked={allocationAcknowledged}
+                  onChange={handleAllocationAcknowledgedChange}
+                />
+                <span className="ml-2">
+                  <span className="text-red-600 font-bold">Allocation Disclaimer: </span>
+                  I understand that TA allocation will be done <span className="text-[#3dafaa] font-bold underline">based on course requirements</span> and not solely on my preferences. Filling preferences does not guarantee allocation to the desired courses.
+                </span>
+              </label>
+            </div>
+
               {/* Commitment Checkbox */}
               <div className="mb-4">
                 <label className="inline-flex items-start">
