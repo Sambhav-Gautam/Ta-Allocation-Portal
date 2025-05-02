@@ -1,3 +1,4 @@
+/* src/pages/AdminPage.jsx */
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import AdminNav from '../Components/AdminNavbar';
@@ -12,29 +13,30 @@ import AdminProfessor from '../Components/AdminProfessor';
 import AdminJms from '../Components/AdminJms';
 import FeedbackList from '../Components/FeedbackList';
 import ArchivedFeedback from '../Components/ArchivedFeedback';
+import NominationsList from '../Components/NominationsList';
 
 const AdminPage = () => {
   return (
     <div className="fixed w-full">
       <AdminNav />
-      <div className="flex gap-0">
-        {/* Sidebar */}
+      <div className="flex">
         <div className="w-44 transition-all duration-300">
           <SideBar />
         </div>
-        {/* Main Content - No gap between Sidebar and Content */}
         <div className="flex-1">
           <Routes>
+            <Route element={<AdminDashboard />} path="/" />
             <Route element={<AdminStudent />} path="/student" />
             <Route element={<AdminCourse />} path="/course" />
             <Route element={<Department />} path="/department" />
-            <Route element={<AdminDashboard />} path="/" />
             <Route element={<CoursePage />} path="/department/:courseName" />
             <Route element={<AdminLog />} path="/logs" />
             <Route element={<AdminProfessor />} path="/professors" />
             <Route element={<AdminJms />} path="/jms" />
             <Route element={<FeedbackList />} path="/feedback" />
             <Route element={<ArchivedFeedback />} path="/archived-feedback" />
+            {/* New: Admin-only TA nominations */}
+            <Route element={<NominationsList />} path="/nominations" />
           </Routes>
         </div>
       </div>

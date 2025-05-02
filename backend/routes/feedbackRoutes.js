@@ -1,4 +1,5 @@
 const express = require('express');
+const { getNominations } = require('../controllers/feedbackController');
 const router = express.Router();
 const {
   startFeedback,
@@ -7,10 +8,12 @@ const {
   getAllFeedbacks,
   closeFeedback,
   getFeedbackStatus,
-  downloadFeedbacks
+  downloadFeedbacks,
+  getArchivedNominations 
 } = require('../controllers/feedbackController');
 
-// start a new feedback round
+// get all nominations for best TA
+router.get('/nominations', getNominations);
 router.get('/start', startFeedback);
 
 // update a feedback by its ID
@@ -31,7 +34,7 @@ router.get('/download', downloadFeedbacks);
 // close the feedback form: archive live, prune old archives, email, delete live, flip flag
 // now matches @route POST /api/feedback/close
 router.post('/close', closeFeedback);
-
+router.get('/archived-nominations', getArchivedNominations); // <-- new route
 
 
 module.exports = router;

@@ -1,18 +1,23 @@
+// src/App.jsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+
 import AdminPage from './Pages/AdminPage';
 import Department from './Pages/DepartmentPage';
 import Professor from './Pages/ProfessorPage';
 import StudentForm from './Pages/TAForm';
+import LoginPage from './Pages/LoginPageAdv';
+import ForgotPassword from './Pages/ForgotPassword';
+import CourseUpload from './Pages/CourseUpload';
+import NominationsPage from './Pages/NominationsPage';
+
 import StudentState from './context/StudentState';
 import CourseState from './context/CourseState';
 import DepartmentState from './context/DepartmentState';
 import AuthState from './context/AuthState';
 import ProfState from './context/ProfState';
+
 import ProtectedRoute from './ProtectedRoutes';
-import LoginPage from './Pages/LoginPageAdv';
-import ForgotPassword from './Pages/ForgotPassword';
-import CourseUpload from './Pages/CourseUpload'; // Import CourseUpload component
 
 const App = () => {
   return (
@@ -22,8 +27,11 @@ const App = () => {
           <CourseState>
             <DepartmentState>
               <Routes>
+                {/* Public routes */}
                 <Route element={<LoginPage />} path="/" />
                 <Route element={<ForgotPassword />} path="/forgotPassword" />
+
+                {/* TA form */}
                 <Route
                   element={
                     <ProtectedRoute
@@ -33,6 +41,8 @@ const App = () => {
                   }
                   path="/TAForm"
                 />
+
+                {/* Admin dashboard */}
                 <Route
                   element={
                     <ProtectedRoute
@@ -42,7 +52,8 @@ const App = () => {
                   }
                   path="/admin/*"
                 />
-                {/* Add the new route for CourseUpload */}
+
+                {/* Course upload (admin only) */}
                 <Route
                   element={
                     <ProtectedRoute
@@ -52,6 +63,8 @@ const App = () => {
                   }
                   path="/admin/course-upload"
                 />
+
+                {/* Department management */}
                 <Route
                   element={
                     <ProtectedRoute
@@ -61,6 +74,8 @@ const App = () => {
                   }
                   path="/department/*"
                 />
+
+                {/* Professor dashboard */}
                 <Route
                   element={
                     <ProtectedRoute
@@ -69,6 +84,17 @@ const App = () => {
                     />
                   }
                   path="/professor/*"
+                />
+
+                {/* Best‑TA nominations page */}
+                <Route
+                  element={
+                    <ProtectedRoute
+                      element={<NominationsPage />}
+                      allowedRoles={['admin', 'professor']}
+                    />
+                  }
+                  path="/nominations"
                 />
               </Routes>
             </DepartmentState>

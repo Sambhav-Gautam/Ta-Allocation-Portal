@@ -352,6 +352,49 @@ const getFeedbackStatus = asyncHandler(async (req, res) => {
   res.json({ active: !!status?.active });
 });
 
+/**
+ * GET /api/feedback/nominations
+ * Return all live-Feedback docs where nominatedForBestTA === true
+ */
+const getNominations = asyncHandler(async (req, res) => {
+  try {
+    const nominations = await Feedback.find({ nominatedForBestTA: true })
+      // Student schema has `name` and `rollNo`
+      .populate('student', 'name rollNo')
+      // Course schema—adjust field names if yours differ
+      .populate('course', 'code name'); 
+
+    res.json(nominations);
+  } catch (err) {
+    console.error('Error in getNominations:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+/**
+ * @desc   Get archived TA nominations for a given semester
+ * @route  GET /api/feedback/archived-nominations?semester=<semester>
+ * @access Admin only
+ */
+const getArchivedNominations = asyncHandler(async (req, res) => {
+  const { semester } = req.query;
+  if (!semester) {
+    return res.status(400).json({ message: 'Query param "semester" is required' });
+  }
+
+  const archivedNoms = await ArchivedFeedback.find({
+    semester,
+    nominatedForBestTA: true
+  });
+
+  // Normalize shape to match live nominations
+  const formatted = archivedNoms.map(n => ({
+    course: { code: n.courseCode, name: n.courseName },
+    student: { name: n.studentName, rollNo: n.studentRollNo }
+  }));
+
+  res.json(formatted);
+});
 
 
 module.exports = {
@@ -361,5 +404,7 @@ module.exports = {
   downloadFeedbacks,
   getAllFeedbacks,
   closeFeedback,
-  getFeedbackStatus
+  getFeedbackStatus,
+  getNominations,
+  getArchivedNominations,
 };
