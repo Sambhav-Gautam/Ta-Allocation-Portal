@@ -49,7 +49,6 @@ The **TA Allocation Portal** is a full-stack web application designed to streaml
 
 ![image](https://github.com/user-attachments/assets/0a78f9ac-2590-49be-abc0-c7b318637e22)
 ![image](https://github.com/user-attachments/assets/b5b190d5-0279-42e5-ab03-56fd1fd4d967)
-![image](https://github.com/user-attachments/assets/ad55301e-4ead-44f3-b0a3-caaa07742c8e)
 ![image](https://github.com/user-attachments/assets/f3cd27d0-6781-49f7-be61-7d9b2746ad8c)
 ![image](https://github.com/user-attachments/assets/43ab0523-d32a-4c05-b2fb-b4e72f3f57f4)
 
