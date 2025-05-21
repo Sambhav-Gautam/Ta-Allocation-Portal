@@ -16,8 +16,7 @@ global.io = socketio( server, {
     cors: {
         origin: [ "http://localhost:5173", "http://localhost:5001", "http://192.168.3.170:5001" ]
     }
-} );
-
+  });
 
 connectDb();
 app.use( cors() )
@@ -57,9 +56,9 @@ io.on( 'connection', ( socket ) =>
     socket.on( 'disconnect', () => { } )
 } )
 
-server.listen( port, () =>
-{
-    console.log( `Server is running on port ${ port }` );
-} );
+
+server.listen(port, '0.0.0.0', () => {
+    console.log(`Server is running on port ${port}`);
+  });
 
 module.exports = io;
